@@ -15,11 +15,11 @@
 #include <time.h>
 #include <unistd.h>
 
+
 /*defines..*/
 #define LIKH_VERSION "0.0.1"
 #define LIKH_TAB_STOP 8
 #define LIKH_QUIT_TIMES 3
-
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 enum editorKey {
@@ -48,6 +48,8 @@ enum editorHighlight{
 
 #define HL_HIGHLIGHT_NUMBERS (1<<0)
 #define HL_HIGHLIGHT_STRINGS (1<<1)
+
+
 /*data*/
 struct editorSyntax
 {
@@ -69,6 +71,7 @@ typedef struct erow{
     unsigned char *hl;
     int hl_open_comment;
 } erow;
+
 struct editorConfig{
     int cx, cy;
     int rx;
@@ -85,7 +88,9 @@ struct editorConfig{
     struct editorSyntax *syntax;
     struct termios orig_termios; //for terminal original flag state
 };
+
 struct editorConfig E;
+
 
 /*file types*/
 char *C_HL_extensions[] = {".c", ".h", ".cpp", ".java", ".rs", NULL};
@@ -104,13 +109,14 @@ struct editorSyntax HLDB[]={
 
 #define HLDB_ENTRIES  (sizeof(HLDB)/sizeof(HLDB[0]))
 
+
 /**prototypes**/
 void editorSetStatusMessage(const char *fmt, ...);
 void editorRefreshScreen();
 char *editorPrompt(char *prompt, void (*callback)(char * , int));
 
-/**terminal**/
 
+/**terminal**/
 void die(const char *s){
     write(STDOUT_FILENO, "\x1b[2J", 4);
     write(STDOUT_FILENO, "\x1b[H", 3);
@@ -210,6 +216,8 @@ int getWindowSize(int *rows, int *cols){
         return 0;
     }
 }
+
+
 /*syntax higlighting*/
 int is_separator(int c){
     return isspace(c) || c == '\0' || strchr(",.()+-/*=~%<>[];", c) != NULL;
@@ -350,6 +358,7 @@ void editorSelectSyntaxHighlight(){
     }
 }
 
+
 /*row operation*/
 int editorRowCxtoRx(erow *row, int cx){
     int rx = 0;
@@ -458,6 +467,7 @@ void editorRowDelChar(erow *row, int at){
     E.dirty++;
 }
 
+
 /*editor operations*/
 void editorInsertChar(int c){
     if(E.cy == E.numrows){
@@ -494,6 +504,7 @@ void editorDelChar(){
         E.cy--;
     }
 }
+
 
 /*i/o file*/
 char *editorRowsToString(int *buflen){
@@ -559,8 +570,9 @@ void editorSave(){
     free(buf);
     editorSetStatusMessage("Can't save i/o error: %s", strerror(errno));
 }
-/*find*/
 
+
+/*find*/
 void editorFindCallback(char *query, int key){
     static int last_match = -1;
     static int direction = 1;
@@ -623,6 +635,8 @@ void editorFind(){
         E.rowoff = saved_rowoff;
     }
 }
+
+
 /*append buffer*/
 struct abuf{
     char *b;
@@ -642,6 +656,7 @@ void abAppend(struct abuf *ab, const char *s, int len){
 void abFree(struct abuf *ab){
     free(ab -> b);
 }
+
 
 /*output*/
 void editorScroll(){
@@ -928,6 +943,7 @@ void editorProcessKeypress(){
     }
     quit_times = LIKH_QUIT_TIMES;
 }
+
 /*init*/
 void initEditor(){
     E.cx = 0;
