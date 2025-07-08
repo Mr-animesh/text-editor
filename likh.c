@@ -19,7 +19,7 @@
 /*defines..*/
 #define LIKH_VERSION "0.0.1"
 #define LIKH_TAB_STOP 8
-#define LIKH_QUIT_TIMES 3
+#define LIKH_QUIT_TIMES 3   
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 enum editorKey {
@@ -243,7 +243,7 @@ void editorUpdateSyntax(erow *row){
         unsigned char prev_hl = (i> 0)? row->hl[i-1]: HL_NORMAL;
         if(scs_len && !in_string && !in_comment){
             if(!strncmp(&row->render[i], scs, scs_len)){
-                memset(&row->hl, HL_COMMENT, row->rsize - i);
+                memset(&row->hl[i], HL_COMMENT, row->rsize - i);
                 break;
             }
         }
@@ -270,8 +270,8 @@ void editorUpdateSyntax(erow *row){
         if(E.syntax->flags & HL_HIGHLIGHT_STRINGS){
             if(in_string){
                 row->hl[i] = HL_STRING;
-                if(c == '\\' && i+1< row->size){
-                    row->hl[i] = HL_STRING;
+                if(c == '\\' && i+1< row->rsize){
+                    row->hl[i+1] = HL_STRING;
                     i += 2;
                     continue;
                 }
@@ -280,7 +280,7 @@ void editorUpdateSyntax(erow *row){
                 prev_sep = 1;
                 continue;
             }else {
-                if(c == '"' || '\''){
+                if(c == '"' || c== '\''){
                     in_string = c;
                     row->hl[i] = HL_STRING;
                     i++;
@@ -330,7 +330,7 @@ int editorSyntaxToColor(int hl){
     case HL_KEYWORD1: return 33;
     case HL_KEYWORD2: return 32;
     case HL_STRING: return 35;
-    case HL_NUMBER: return 31;
+    case HL_NUMBER: return 91;
     case HL_MATCH: return 34;
     default: return 37;
     }
@@ -717,7 +717,7 @@ void editorDrawRows(struct abuf *ab){
                     abAppend(ab, buf, clen);
                 }
             } else if (hl[j] == HL_NORMAL){
-                if(current_color != -1){
+                if(current_color != -1){    
                     abAppend(ab, "\x1b[39m", 5);
                     current_color = -1;
                 }
